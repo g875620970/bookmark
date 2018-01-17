@@ -35,7 +35,7 @@ import com.clearbill.util.ResultVo;
 
 @Controller
 public class BookmarkController {
-	
+
 	/**
 	 * 书签页
 	 * @param userName
@@ -45,7 +45,7 @@ public class BookmarkController {
 	public ModelAndView bookmarkList(@PathVariable String userName){
 		return new ModelAndView("bookmarks","userName",userName);
 	}
-	
+
 	/**
 	 * 获取用户下所有书签信息
 	 * @param userName
@@ -96,7 +96,7 @@ public class BookmarkController {
 		}
 		return ResultUtil.success(userBookmarkList);
 	}
-	
+
 	/**
 	 * 新建书签
 	 * @param session
@@ -115,7 +115,7 @@ public class BookmarkController {
 		RedisUtils.getInstall().hset(userName,bookmark.getId(),JSON.toJSONString(bookmark));
 		return ResultUtil.success();
 	}
-	
+
 	/**
 	 * 更新书签
 	 * @param bookmark
@@ -135,7 +135,7 @@ public class BookmarkController {
 		RedisUtils.getInstall().hset(userName,bookmark.getId(),JSON.toJSONString(bookmark));
 		return ResultUtil.success();
 	}
-	
+
 	/**
 	 * 删除书签
 	 * @param bookmark
@@ -151,7 +151,7 @@ public class BookmarkController {
 		RedisUtils.getInstall().hdel(userName,bookmark.getId());
 		return ResultUtil.success();
 	}
-	
+
 	/**
 	 * 错误信息
 	 * @param errors
@@ -165,7 +165,7 @@ public class BookmarkController {
 			throw new ValidateException();
 		}
 	}
-	
+
 	/**
 	 * 异常处理
 	 * @param request
@@ -174,11 +174,11 @@ public class BookmarkController {
 	 */
 	@ExceptionHandler
 	@ResponseBody
-    public ResultVo exp(HttpServletRequest request, Exception ex) {
+	public ResultVo exp(HttpServletRequest request, Exception ex) {
 		if(ex instanceof ValidateException){
 			return ResultUtil.error("参数错误");
 		}
 		return ResultUtil.error("服务器异常");
-    }
-	
+	}
+
 }
