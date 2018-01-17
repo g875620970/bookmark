@@ -1,22 +1,36 @@
 package com.clearbill.util;
 
-import com.alibaba.fastjson.JSONObject;
 
 public class ResultUtil {
 	
-	public static String success(Object data){
-		JSONObject json = new JSONObject();
-		json.put("code", 0);
-		json.put("msg", "success");
-		json.put("data", data);
-		return json.toJSONString();
+	public static ResultVo success(Object data){
+		ResultVo result = new ResultVo();
+		result.setCode(0);
+		result.setMsg("成功");
+		result.setData(data);
+		return result;
 	}
 	
-	public static String error(String msg){
-		JSONObject json = new JSONObject();
-		json.put("code", 1);
-		json.put("msg", msg);
-		return json.toJSONString();
+	public static ResultVo success(){
+		ResultVo result = new ResultVo();
+		result.setCode(0);
+		result.setMsg("成功");
+		return result;
+	}
+	
+	public static ResultVo error(String msg){
+		ResultVo result = new ResultVo();
+		result.setCode(1);
+		result.setMsg(msg);
+		return result;
+	}
+	
+	public static ResultVo error(String msg,Object data){
+		ResultVo result = new ResultVo();
+		result.setCode(1);
+		result.setMsg(msg);
+		result.setData(data);
+		return result;
 	}
 
 }
