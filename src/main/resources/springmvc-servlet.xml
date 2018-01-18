@@ -15,19 +15,32 @@
 	http://www.springframework.org/schema/aop/spring-aop.xsd"
 	default-lazy-init="true">
 
+    <!-- 扫描control类 -->
+    <context:component-scan base-package="com.clearbill.web" />
+    
 	<!-- mvc注解驱动 -->
 	<mvc:annotation-driven>
 		<mvc:message-converters>
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter" />
-			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+			<bean
+				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
 		</mvc:message-converters>
 	</mvc:annotation-driven>
+	
+    <!-- 拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 定义在mvc:interceptor下面的表示是对特定的请求才进行拦截的 -->
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/login"/>
+			<mvc:exclude-mapping path="/register"/>
+			<bean class="com.clearbill.interceptor.SpringMvcInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
 	<!-- 默认的Servlet来响应静态文件 -->
 	<mvc:default-servlet-handler />
-	<!-- 扫描control类 -->
-	<context:component-scan base-package="com.clearbill.web" />
-	<!-- <util:properties id="configProperties" location="classpath:wx.properties"></util:properties> -->
-
+	
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/view/"></property>
 		<property name="suffix" value=".jsp"></property>

@@ -5,17 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.groups.Default;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,18 +30,18 @@ import com.clearbill.util.ResultUtil;
 import com.clearbill.util.ResultVo;
 
 @Controller
-public class BookmarkController {
+public class BookmarkController extends BaseController{
 
 	/**
 	 * 书签页
 	 * @param userName
 	 * @return
 	 */
-	@RequestMapping(value="/bookmarks/{userName}",method=RequestMethod.GET)
-	public ModelAndView bookmarkList(@PathVariable String userName){
-		return new ModelAndView("bookmarks","userName",userName);
+	@RequestMapping(value="/bookmarks",method=RequestMethod.GET)
+	public ModelAndView bookmarkList(){
+		return new ModelAndView("bookmark/bookmarks");
 	}
-
+	
 	/**
 	 * 获取用户下所有书签信息
 	 * @param userName
@@ -150,35 +146,6 @@ public class BookmarkController {
 		String userName = userInfo.getUserName();
 		RedisUtils.getInstall().hdel(userName,bookmark.getId());
 		return ResultUtil.success();
-	}
-
-	/**
-	 * 错误信息
-	 * @param errors
-	 * @throws ValidateException 
-	 */
-	private void validateParam(BindingResult validateResult) throws ValidateException{
-		if(validateResult.hasErrors()){
-			for (ObjectError error : validateResult.getAllErrors()) {
-				System.out.println(error.getDefaultMessage());
-			}
-			throw new ValidateException();
-		}
-	}
-
-	/**
-	 * 异常处理
-	 * @param request
-	 * @param ex
-	 * @return
-	 */
-	@ExceptionHandler
-	@ResponseBody
-	public ResultVo exp(HttpServletRequest request, Exception ex) {
-		if(ex instanceof ValidateException){
-			return ResultUtil.error("参数错误");
-		}
-		return ResultUtil.error("服务器异常");
 	}
 
 }
