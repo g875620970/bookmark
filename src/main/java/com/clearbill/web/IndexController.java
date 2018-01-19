@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.clearbill.dto.UserInfo;
 import com.clearbill.dto.groups.LoginRegister;
 import com.clearbill.exception.ValidateException;
-import com.clearbill.util.RedisUtils;
+import com.clearbill.util.JedisUtils;
 import com.clearbill.util.ResultUtil;
 import com.clearbill.util.ResultVo;
 
@@ -65,7 +65,7 @@ public class IndexController extends BaseController {
 		validateParam(validateResult);
 		String userName = userInfo.getUserName();
 		String md5Pwd = DigestUtils.md5Hex(userInfo.getPwd());
-		String relPwd = RedisUtils.getInstall().hget(PWD_KEY,userName);
+		String relPwd = JedisUtils.getInstall().hget(PWD_KEY,userName);
 		if(relPwd==null || !md5Pwd.equals(relPwd)){
 			return ResultUtil.error("用户不存在或密码错误");
 		}
@@ -87,7 +87,7 @@ public class IndexController extends BaseController {
 		validateParam(validateResult);
 		String userName = userInfo.getUserName();
 		String md5Pwd = DigestUtils.md5Hex(userInfo.getPwd());
-		RedisUtils.getInstall().hset(PWD_KEY,userName,md5Pwd);
+		JedisUtils.getInstall().hset(PWD_KEY,userName,md5Pwd);
 		return ResultUtil.success();
 	}
 	

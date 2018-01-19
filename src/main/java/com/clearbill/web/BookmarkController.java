@@ -1,15 +1,9 @@
 package com.clearbill.web;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import javax.validation.groups.Default;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,21 +11,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.clearbill.dto.Bookmark;
-import com.clearbill.dto.UserBookmark;
 import com.clearbill.dto.UserInfo;
 import com.clearbill.dto.groups.DelBookmark;
 import com.clearbill.dto.groups.UpdateBookmark;
 import com.clearbill.exception.ValidateException;
-import com.clearbill.util.RedisUtils;
-import com.clearbill.util.ResultUtil;
+import com.clearbill.service.BookmarkService;
 import com.clearbill.util.ResultVo;
 
 @Controller
 public class BookmarkController extends BaseController{
 
+	@Autowired
+	BookmarkService bookmarkService;
+	
 	/**
 	 * 书签页
 	 * @param userName
@@ -54,43 +47,7 @@ public class BookmarkController extends BaseController{
 	public ResultVo getBookmarkByUser(@Validated UserInfo userInfo,BindingResult validateResult) throws ValidateException{
 		validateParam(validateResult);
 		String userName = userInfo.getUserName();
-		Map<String,String> bookmarkMap = RedisUtils.getInstall().hgetAll(userName);
-		//书签信息分组解析到map
-		Map<String,List<Bookmark>> categoryMap = new TreeMap<String, List<Bookmark>>();
-		List<Bookmark> otherBookmark = new ArrayList<Bookmark>();
-		for(Map.Entry<String, String> bookmarkEntry : bookmarkMap.entrySet()){
-			Bookmark bookmark = JSONObject.parseObject(bookmarkEntry.getValue(),Bookmark.class);
-			String category = bookmark.getCategory();
-			if(StringUtils.isEmpty(category)){
-				otherBookmark.add(bookmark);
-			}
-			else{
-				List<Bookmark> bookmarkList = categoryMap.get(category);
-				if(bookmarkList==null){
-					bookmarkList = new ArrayList<Bookmark>();
-					categoryMap.put(category, bookmarkList);
-				}
-				bookmarkList.add(bookmark);
-			}
-		}
-		//分组书签
-		List<UserBookmark> userBookmarkList = new ArrayList<UserBookmark>();
-		for (Map.Entry<String, List<Bookmark>> categoryEntry : categoryMap.entrySet()) {
-			UserBookmark userBookmark = new UserBookmark();
-			userBookmark.setScore(0d);
-			userBookmark.setCategory(categoryEntry.getKey());
-			userBookmark.setBookmarkList(categoryEntry.getValue());
-			userBookmarkList.add(userBookmark);
-		}
-		//未分组书签
-		if(otherBookmark.size()>0){
-			UserBookmark userBookmark = new UserBookmark();
-			userBookmark.setScore(100d);
-			userBookmark.setCategory("未分组");
-			userBookmark.setBookmarkList(otherBookmark);
-			userBookmarkList.add(userBookmark);
-		}
-		return ResultUtil.success(userBookmarkList);
+		return bookmarkService.getBookmarkByUser(userName);
 	}
 
 	/**
@@ -105,11 +62,7 @@ public class BookmarkController extends BaseController{
 	@ResponseBody
 	public ResultVo addBookmark(@Validated UserInfo userInfo,@Validated(Default.class) Bookmark bookmark,BindingResult validateResult) throws ValidateException{
 		validateParam(validateResult);
-		String userName = userInfo.getUserName();
-		//书签信息
-		bookmark.setId(DigestUtils.md5Hex(String.valueOf(System.currentTimeMillis())));
-		RedisUtils.getInstall().hset(userName,bookmark.getId(),JSON.toJSONString(bookmark));
-		return ResultUtil.success();
+		return bookmarkService.addBookmark(userInfo.getUserName(), bookmark);
 	}
 
 	/**
@@ -123,13 +76,7 @@ public class BookmarkController extends BaseController{
 	@ResponseBody
 	public ResultVo updateBookmark(@Validated UserInfo userInfo,@Validated({UpdateBookmark.class,Default.class})Bookmark bookmark,BindingResult validateResult) throws ValidateException{
 		validateParam(validateResult);
-		String userName = userInfo.getUserName();
-		String idValue = RedisUtils.getInstall().hget(userName,bookmark.getId());
-		if(StringUtils.isEmpty(idValue)){
-			return ResultUtil.error("id错误");
-		}
-		RedisUtils.getInstall().hset(userName,bookmark.getId(),JSON.toJSONString(bookmark));
-		return ResultUtil.success();
+		return bookmarkService.updateBookmark(userInfo.getUserName(), bookmark);
 	}
 
 	/**
@@ -143,9 +90,7 @@ public class BookmarkController extends BaseController{
 	@ResponseBody
 	public ResultVo delBookmark(@Validated UserInfo userInfo,@Validated({DelBookmark.class})Bookmark bookmark,BindingResult validateResult) throws ValidateException{
 		validateParam(validateResult);
-		String userName = userInfo.getUserName();
-		RedisUtils.getInstall().hdel(userName,bookmark.getId());
-		return ResultUtil.success();
+		return bookmarkService.delBookmark(userInfo.getUserName(), bookmark);
 	}
 
 }

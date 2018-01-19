@@ -2,23 +2,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="basePath" value="${pageContext.request.contextPath}"/>
 <!DOCTYPE>
-<html ng-app="bookmarksApp">
+<html ng-app="registerApp">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	    <title>注册</title>
-	    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-	    <script src="https://cdn.bootcss.com/angular.js/1.6.8/angular.min.js"></script>
-	    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
-		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-		<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
-		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<link href="${basePath}/static/css/sweetalert.css" rel="stylesheet">
-		<script src="${basePath}/static/js/sweetalert.min.js"></script>
+	    <%@ include file="/static/taglib.jsp"%>
 	    <script>
 		    (function(angular) {
-			    angular.module("bookmarksApp",[]).controller("bookmarksController",['$scope','$http',function ($scope,$http) {
+			    angular.module("registerApp",[]).controller("registerController",['$scope','$http',function ($scope,$http) {
 		            $scope.userInfo = {};
 		            //显示登录页
 		            $scope.showLogin = function(){
@@ -33,29 +24,24 @@
                             paramSerializer: '$httpParamSerializerJQLike'
                         }).then(function successCallback(data) {
                             if(data.data.code==0){
-                                    location.href="${basePath}/login";
-                            }else{
                                 swal({
-                                    title:data.data.msg,
-                                    type:"error",
-                                    confirmButtonText: "OK",
-                                    closeOnConfirm: true
+                                    title:"注册成功",
+                                    type: 'success'
+                                },function(){
+                                    location.href="${basePath}/login";
                                 });
+                            }else{
+                                swal(data.data.msg,"","error");
                             }
                         }, function errorCallback(error) {
-                            swal({
-                                title:"服务器异常",
-                                type:"error",
-                                confirmButtonText: "OK",
-                                closeOnConfirm: true
-                            });
+                                swal("服务器异常","","error");
                         });
                     };
 			    }]);
 		    })(angular);
 	    </script>
 	</head>
-	<body ng-controller="bookmarksController" style="background:#009999">
+	<body ng-controller="registerController" style="background:#009999">
         <div class="container">
             <!-- 注册 -->
             <div class="bs-example bs-example-modal" data-example-id="register-modal">

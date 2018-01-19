@@ -9,10 +9,6 @@ public class UserBookmark {
 	 */
 	private String category;
 	/**
-	 * 排序值
-	 */
-	private Double score;
-	/**
 	 * 书签list
 	 */
 	private List<Bookmark> bookmarkList;
@@ -23,14 +19,6 @@ public class UserBookmark {
 
 	public void setCategory(String category) {
 		this.category = category;
-	}
-
-	public Double getScore() {
-		return score;
-	}
-
-	public void setScore(Double score) {
-		this.score = score;
 	}
 
 	public List<Bookmark> getBookmarkList() {
